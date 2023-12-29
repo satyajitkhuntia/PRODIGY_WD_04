@@ -1,0 +1,150 @@
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+        h1 {
+            text-align: center;
+            color: #333333;
+        }
+
+        #container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #cccccc;
+            background-color: #ffffff;
+        }
+
+        #form {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #input {
+            width: 300px;
+            height: 30px;
+            border: 1px solid #cccccc;
+            padding: 5px;
+        }
+
+        #button {
+            width: 100px;
+            height: 40px;
+            border: none;
+            background-color: #333333;
+            color: #ffffff;
+            cursor: pointer;
+        }
+
+        #result {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        #icon {
+            width: 100px;
+            height: 100px;
+        }
+
+        #temp {
+            font-size: 40px;
+            font-weight: bold;
+        }
+
+        #desc {
+            font-size: 20px;
+            font-style: italic;
+        }
+
+        #info {
+            font-size: 16px;
+        }
+        #image{
+          display: flex;
+          justify-content: center;
+        }
+    </style>
+</head>
+<h1>Weather App</h1>
+    <div id="container">
+        <form id="form">
+            <input id="input" type="text" placeholder="Enter a city name or use your location" />
+            <button id="button" type="submit">Get Weather</button>
+        </form>
+        <div id="result">
+            <img id="icon" src="https://w7.pngwing.com/pngs/1005/263/png-transparent-weather-forecasting-logo-weather-blue-game-cloud.png" alt="Weather Icon" />
+            <span id="temp"></span>
+            <span id="desc"></span>
+            <p id="info"></p>
+        </div>
+    </div>
+    <script>
+        const form = document.getElementById("form");
+        const input = document.getElementById("input");
+        const icon = document.getElementById("icon");
+        const temp = document.getElementById("temp");
+        const desc = document.getElementById("desc");
+        const info = document.getElementById("info");
+
+        const getWeather = async (location) => {
+
+            const apiKey = 'eebd37ed566d1f3363c5f6cd3ed54020';
+            const url = `https://api.openweathermap.org/data/2.5/weather?q=${location}&appid=${apiKey}&units=metric`;
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error('City not found!');
+                }
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                throw new Error('Unable to fetch weather data');
+            }
+        };
+
+        const displayWeather = (data) => {
+         const { icon: weatherIcon, description } = data.weather[0] || {};
+         const { temp: temperature, feels_like, humidity, pressure } = data.main || {};
+         const { speed, deg } = data.wind || {};
+         const cityName = data.name || "Unknown"; 
+         const country = data.sys.country || "Unknown";
+
+
+           icon.src = `https://openweathermap.org/img/wn/${weatherIcon}.png`;
+           icon.alt = description || 'Weather Icon';
+   
+           temp.textContent = `${temperature || 'N/A'}°C`;
+
+         desc.textContent = description || 'N/A';
+
+         info.textContent = `The weather in ${cityName}, ${country} is ${description || 'N/A'}. The temperature is ${temperature || 'N/A'}°C, but it feels like ${feels_like || 'N/A'}°C. The humidity is ${humidity || 'N/A'}%, and the pressure is ${pressure || 'N/A'} hPa. The wind speed is ${speed || 'N/A'} m/s, and the wind direction is ${deg || 'N/A'} degrees.`;
+};
+
+  
+        const handleSubmit = async (event) => {
+            event.preventDefault();
+            const location = input.value;
+            if (!location) {
+                alert('Please enter a city name!');
+                return;
+            }
+
+            try {
+                const weatherData = await getWeather(location);
+                displayWeather(weatherData);
+            } catch (error) {
+                alert(error.message);
+            }
+
+            input.value = '';
+        };
+
+        form.addEventListener('submit', handleSubmit);
+    </script>
+</body>
+</html>
